@@ -33,6 +33,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         this.doneButton = node.widgets.append('DoneButton', header);
 
+        // name counter lister on the client side
+        // listens and reports back to logic everytime
+        // a name is evaluated
+
+        node.on('nameEvaluated', function() {
+            node.say('nameEvaluatedLOGIC', 'SERVER')
+        })
+
 
     });
 
@@ -48,8 +56,28 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         cb: function() {
 
+            // retrieve name list from logic
+            // retrieve the name list counter (in case of disconnect)
             node.get('nameList', function(msg) {
+
                 node.emit('nameListHTML', msg.data);
+
+            })
+
+            // player evaluated the name as white
+            // send this message to logic
+            node.on('whiteName', function(){
+
+                node.say('whiteNameLOGIC', 'SERVER');
+
+            })
+
+            // player evaluated the name as black
+            // send this message to logic
+            node.on('blackName', function(){
+
+                node.say('blackNameLOGIC', 'SERVER');
+
             })
 
         }
@@ -75,7 +103,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         frame: 'end.htm',
 
         cb: function() {
-            node.game.visualTimer.setToZero();
+
         }
 
     });

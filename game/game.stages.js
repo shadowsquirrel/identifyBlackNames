@@ -13,7 +13,7 @@ module.exports = function(stager, settings) {
 
      stager
         .next('instructions')
-        .repeat('identifyRace', settings.REPEAT)
+        .next('identifyRace')
         .next('solveDisagreement')
         .next('end')
         .gameover();
