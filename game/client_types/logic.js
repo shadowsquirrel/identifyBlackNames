@@ -17,6 +17,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     var node = gameRoom.node;
     var channel =  gameRoom.channel;
 
+    const NOS = settings.numberOfSubjects;
+
     // Must implement the stages here.
 
     stager.setOnInit(function() {
@@ -53,9 +55,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             node.game.pl.each(function(player) {
 
-                player.numberOfNamesEvaluated = 0;
-                // player.shuffledNameList = J.shuffle(node.game.nameList);
-                player.shuffledNameList = node.game.nameList;
+                player.indexOfNextNameToEvaluate = 0;
+                player.shuffledNameList = J.shuffle(node.game.nameList);
+                // below is for debug use the commented above for randomization
+                // player.shuffledNameList = node.game.nameList;
                 player.evaluationList = Array(node.game.nameList.lenght).fill(-1);
                 player.unmatchedNamesList = undefined;
 
@@ -68,30 +71,30 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         // DEBUG
         node.game.pl.each(function(player) {
-            console.log(player.shuffledNameList);
+            // console.log(player.shuffledNameList);
         })
 
 
         // Listener ready to send the shuffles name list to clients
         node.on('get.nameList', function(msg) {
 
-            console.log('LOGIC SIDE');
-            console.log('PLAYER REQUESTED NAMELIST');
+            // console.log('LOGIC SIDE');
+            // console.log('PLAYER REQUESTED NAMELIST');
 
             let myData = {};
 
             let player = node.game.pl.get(msg.from);
 
-            console.log('PLAYER ' + player.count);
+            // console.log('PLAYER ' + player.count);
 
-            let counter = player.numberOfNamesEvaluated;
+            let index = player.indexOfNextNameToEvaluate;
             let list = player.shuffledNameList;
 
             myData.list = list
-            myData.counter = counter;
+            myData.index = index;
 
-            console.log('NAMELIST TO BE SENT: ' + myData.list);
-            console.log('NAME COUNTER TO BE SENT: ' + myData.counter);
+            // console.log('NAMELIST TO BE SENT: ' + myData.list);
+            // console.log('NAME COUNTER TO BE SENT: ' + myData.index);
 
             return myData
 
@@ -99,27 +102,89 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
 
         // NAME EVALUATION
-        // Listener that tracks the number of names evaluated
+        // Listener that tracks the index of the current name evaluated
         // and the evaluation of the respective name
         node.on.data('nameLOGIC', function(msg) {
 
-            console.log('INSIDE NAMELOGIC');
-            console.log('data: ' + msg.data);
+            // console.log('INSIDE NAMELOGIC');
+            // console.log('data: ' + msg.data);
 
             let player = node.game.pl.get(msg.from);
-            let counter = player.numberOfNamesEvaluated;
+            let index = player.indexOfNextNameToEvaluate;
 
             // 0 for evaluating a name as white 1 for black
-            player.evaluationList[counter] = msg.data;
-            player.numberOfNamesEvaluated += 1;
+            player.evaluationList[index] = msg.data;
+            player.indexOfNextNameToEvaluate += 1;
 
 
+            // console.log(player.evaluationList);
 
         })
 
 
-        // Figure out a way to reverse the random shuffle
-        // of each player's shuffled name list
+
+        node.game.getOrderedDecision = function() {
+
+            node.game.pl.each(function(player) {
+
+                var myList = player.shuffledNameList;
+                var myDecisionList = player.evaluationList;
+                var originalList = node.game.nameList;
+
+                var orderedList = [];
+
+                for(var i = 0; i < myDecisionList.length; i++) {
+
+                    orderedList[i] = myDecisionList[myList.indexOf(originalList[i])];
+
+                }
+
+                player.orderedDecisionList = orderedList;
+
+
+                // console.log();
+                // console.log();
+                // console.log('my shuffled name list');
+                // console.log(myList);
+                // console.log('my decision list');
+                // console.log(myDecisionList);
+                // console.log('initial name list');
+                // console.log(originalList);
+                // console.log('my decision list reordered based on original list');
+                // console.log(orderedList);
+                // console.log();
+                // console.log();
+
+
+            })
+
+
+        }
+
+
+        node.game.sum2Arrays = function(array1, array2) {
+
+            var sumArray = [];
+
+            for(var i = 0; i < array1.length; i++){
+                sum.push(array1[i] + array2[i]);
+            }
+
+            return sumArray
+
+        }
+
+        node.game.sumArrays = function() {
+
+            var allArrays = [];
+
+            for(var i = 0; i < )
+
+        }
+
+        // TO DO
+        // Figure out a way to reverse the random shuffle - DONE
+        // of each player's shuffled name list - DONE
         // aggregate their results
         // identify the names that x% of the subject do not agree
         // update each players unmatchedNamesList
@@ -174,9 +239,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         cb: function() {
 
+
+
         },
 
         done: function() {
+
+
 
         }
 
@@ -196,9 +265,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             console.log();
             console.log();
 
+
+            node.game.getOrderedDecision();
+
+
         },
 
         cb: function() {
+
+
 
         },
 

@@ -12,14 +12,14 @@ window.onload = function() {
 
     let answerList = [];
 
-    let nameList, nameCounter;
+    let nameList, nameIndex;
 
     node.on('nameListHTML', function(msg) {
 
         console.log(msg);
 
         nameList = msg.list;
-        nameCounter = msg.counter;
+        nameIndex = msg.index;
 
         // pass the first element of the nameList
         displayNextName();
@@ -28,11 +28,11 @@ window.onload = function() {
 
     var displayNextName = function() {
 
-        node.emit('counterWatcher', nameCounter)
+        node.emit('counterWatcher', nameIndex)
 
-        if(nameCounter <= 9) {
+        if(nameIndex <= 9) {
 
-            $('#myName').html(nameList[nameCounter]);
+            $('#myName').html(nameList[nameIndex]);
 
         } else {
 
@@ -47,7 +47,7 @@ window.onload = function() {
 
         node.emit('whiteName');
 
-        nameCounter += 1;
+        nameIndex += 1;
 
         displayNextName();
 
@@ -57,7 +57,7 @@ window.onload = function() {
 
         node.emit('blackName');
 
-        nameCounter += 1;
+        nameIndex += 1;
 
         displayNextName();
 

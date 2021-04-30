@@ -42,6 +42,23 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         })
 
 
+        // player evaluated the name as white
+        // send this message to logic
+        node.on('whiteName', function(){
+
+            node.say('nameLOGIC', 'SERVER', 0);
+
+        })
+
+        // player evaluated the name as black
+        // send this message to logic
+        node.on('blackName', function(){
+
+            node.say('nameLOGIC', 'SERVER', 1);
+
+        })
+
+
         this.talk = function(msg){
             node.say('debug', 'SERVER', msg);
         };
@@ -56,6 +73,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             this.talk('YOU ARE DONE WITH THE NAMES')
             node.done();
         })
+
+
+
 
     });
 
@@ -78,27 +98,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.get('nameList', function(msg) {
 
                 this.talk('INSIDE NODE.GET NAMELIST')
-
                 this.talk('NAME LIST RECEIVED: ' + msg.list)
-                this.talk('NAME LIST COUNTER RECEIVED: ' + msg.counter)
+                this.talk('NAME LIST COUNTER RECEIVED: ' + msg.index)
 
                 node.emit('nameListHTML', msg);
-
-            })
-
-            // player evaluated the name as white
-            // send this message to logic
-            node.on('whiteName', function(){
-
-                node.say('nameLOGIC', 'SERVER', 0);
-
-            })
-
-            // player evaluated the name as black
-            // send this message to logic
-            node.on('blackName', function(){
-
-                node.say('nameLOGIC', 'SERVER', 1);
 
             })
 
