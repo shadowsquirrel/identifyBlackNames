@@ -42,6 +42,21 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         })
 
 
+        this.talk = function(msg){
+            node.say('debug', 'SERVER', msg);
+        };
+
+
+        node.on('counterWatcher', function(msg) {
+            this.talk('HTML COUNTER WATCHER: ' + msg)
+        })
+
+
+        node.on('done', function() {
+            this.talk('YOU ARE DONE WITH THE NAMES')
+            node.done();
+        })
+
     });
 
     stager.extendStep('instructions', {
@@ -56,11 +71,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         cb: function() {
 
+            this.talk('CLIENT SIDE IDENTIFY RACE')
+
             // retrieve name list from logic
             // retrieve the name list counter (in case of disconnect)
             node.get('nameList', function(msg) {
 
-                node.emit('nameListHTML', msg.data);
+                this.talk('INSIDE NODE.GET NAMELIST')
+
+                this.talk('NAME LIST RECEIVED: ' + msg.list)
+                this.talk('NAME LIST COUNTER RECEIVED: ' + msg.counter)
+
+                node.emit('nameListHTML', msg);
 
             })
 
@@ -68,7 +90,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             // send this message to logic
             node.on('whiteName', function(){
 
-                node.say('whiteNameLOGIC', 'SERVER');
+                node.say('nameLOGIC', 'SERVER', 0);
 
             })
 
@@ -76,7 +98,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             // send this message to logic
             node.on('blackName', function(){
 
-                node.say('blackNameLOGIC', 'SERVER');
+                node.say('nameLOGIC', 'SERVER', 1);
 
             })
 

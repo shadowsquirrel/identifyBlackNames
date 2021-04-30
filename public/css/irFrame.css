@@ -13,9 +13,23 @@
 .frame-A-0-0
 {
     display:flex;
+    flex-direction: row;
+    justify-content: center;
     width:650px;
     height:350px;
 }
+.innerWrap
+{
+    display:flex;
+    flex-direction: column;
+    justify-content: center;    
+}
+.nameText
+{
+    font-size: 100px;
+    font-weight: 700;
+}
+
 /*--------------------------------*/
 .frame-buttons-A
 {

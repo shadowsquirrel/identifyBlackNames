@@ -32,7 +32,7 @@ module.exports = {
      *
      * The size of each group dispatched by the waiting room
      */
-    GROUP_SIZE: 2,
+    GROUP_SIZE: 10,
 
     /**
      * ## POOL_SIZE (number) Optional
@@ -273,7 +273,7 @@ module.exports = {
      *
      * @see WaitingRoom.dispatch
      */
-    // PING_BEFORE_DISPATCH: true,
+    // PING_BEFORE_DISPATCH: false,
 
     /**
      * ## PING_MAX_REPLY_TIME (number > 0) Optional
@@ -426,7 +426,7 @@ module.exports = {
          * If TRUE, plays default sound, if string plays the file sound
          * located at the specified uri.
          */
-        // dispatch: false
+        dispatch: false
     },
 
     /** ### ALLOW_PLAY_WITH_BOTS

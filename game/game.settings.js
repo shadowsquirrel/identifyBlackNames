@@ -56,10 +56,5 @@ module.exports = {
             bidTime: 30000
         },
 
-        pressure: {
-            description: "Short times to take decisions",
-            bidTime: 10000
-        }
-
     }
 };

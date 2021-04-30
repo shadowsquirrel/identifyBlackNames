@@ -54,57 +54,66 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.game.pl.each(function(player) {
 
                 player.numberOfNamesEvaluated = 0;
-                player.shuffledNameList = J.shuffle(node.game.nameList);
+                // player.shuffledNameList = J.shuffle(node.game.nameList);
+                player.shuffledNameList = node.game.nameList;
                 player.evaluationList = Array(node.game.nameList.lenght).fill(-1);
                 player.unmatchedNamesList = undefined;
-
 
             })
 
         }
 
+        node.game.initializePlayer();
+
+
+        // DEBUG
+        node.game.pl.each(function(player) {
+            console.log(player.shuffledNameList);
+        })
+
+
         // Listener ready to send the shuffles name list to clients
         node.on('get.nameList', function(msg) {
 
-            let myData = [];
+            console.log('LOGIC SIDE');
+            console.log('PLAYER REQUESTED NAMELIST');
+
+            let myData = {};
 
             let player = node.game.pl.get(msg.from);
+
+            console.log('PLAYER ' + player.count);
 
             let counter = player.numberOfNamesEvaluated;
             let list = player.shuffledNameList;
 
-            myData = [list, counter];
+            myData.list = list
+            myData.counter = counter;
+
+            console.log('NAMELIST TO BE SENT: ' + myData.list);
+            console.log('NAME COUNTER TO BE SENT: ' + myData.counter);
 
             return myData
 
         })
 
 
-        // WHITE EVALUATION
+        // NAME EVALUATION
         // Listener that tracks the number of names evaluated
         // and the evaluation of the respective name
-        node.on.data('whiteNameLOGIC', function(msg) {
+        node.on.data('nameLOGIC', function(msg) {
+
+            console.log('INSIDE NAMELOGIC');
+            console.log('data: ' + msg.data);
 
             let player = node.game.pl.get(msg.from);
             let counter = player.numberOfNamesEvaluated;
 
-            // 0 for evaluating a name as white
-            player.evaluationList[counter] = 0;
+            // 0 for evaluating a name as white 1 for black
+            player.evaluationList[counter] = msg.data;
             player.numberOfNamesEvaluated += 1;
 
-        })
 
-        // BLACK EVALUATION
-        // Listener that tracks the number of names evaluated
-        // and the evaluation of the respective name
-        node.on.data('blackNameLOGIC', function(msg) {
-
-            let player = node.game.pl.get(msg.from);
-            let counter = player.numberOfNamesEvaluated;
-
-            // 0 for evaluating a name as white
-            player.evaluationList[counter] = 1;
-            player.numberOfNamesEvaluated += 1;
 
         })
 
@@ -119,6 +128,24 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // send the unmatchedNamesList to the players
 
 
+
+
+        //-------- SOME DEBUG METHODS --------//
+        // Identifies the player in the console
+        node.game.showPlayer = function(player) {
+            console.log();
+            console.log('Player ' + player.count +
+                        ' [' + player.clientType + ']');
+        };
+
+        // Enables logging to console from player.js
+        node.on.data('debug', function(msg) {
+            let player = node.game.pl.get(msg.from);
+            node.game.showPlayer(player);
+            console.log(msg.data);
+        });
+
+
     });
 
     stager.extendStep('instructions', {
@@ -130,6 +157,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('identifyRace', {
+
         init: function() {
 
             console.log();

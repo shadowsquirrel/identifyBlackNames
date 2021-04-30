@@ -16,39 +16,32 @@ window.onload = function() {
 
     node.on('nameListHTML', function(msg) {
 
-        nameList = msg.data[0];
-        nameCounter = msg.data[1];
+        console.log(msg);
+
+        nameList = msg.list;
+        nameCounter = msg.counter;
 
         // pass the first element of the nameList
-        displayName();
+        displayNextName();
 
     })
 
     var displayNextName = function() {
 
-        if(nameCounter <= 10) {
+        node.emit('counterWatcher', nameCounter)
+
+        if(nameCounter <= 9) {
 
             $('#myName').html(nameList[nameCounter]);
 
         } else {
 
-            console.log('OUT OF NAMES !!!!!');
-            console.log('OUT OF NAMES !!!!!');
-            console.log('OUT OF NAMES !!!!!');
-
-            doneWithNames(nameCounter);
-
-        }
-
-    }
-
-    var doneWithNames = function(counter) {
-
-        if(counter === 10) {
             node.emit('done');
+
         }
 
     }
+
 
     $('#whiteButton').click(function() {
 
