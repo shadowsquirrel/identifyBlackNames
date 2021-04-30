@@ -56,6 +56,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                 player.numberOfNamesEvaluated = 0;
                 player.shuffledNameList = J.shuffle(node.game.nameList);
                 player.evaluationList = Array(node.game.nameList.lenght).fill(-1);
+                player.unmatchedNamesList = undefined;
+
 
             })
 
@@ -105,6 +107,16 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             player.numberOfNamesEvaluated += 1;
 
         })
+
+
+        // Figure out a way to reverse the random shuffle
+        // of each player's shuffled name list
+        // aggregate their results
+        // identify the names that x% of the subject do not agree
+        // update each players unmatchedNamesList
+
+
+        // send the unmatchedNamesList to the players
 
 
     });
