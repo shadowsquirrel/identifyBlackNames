@@ -41,6 +41,8 @@ module.exports = {
     // cheating, re-set the dictator's offer to this value.
     defaultOffer: 100,
 
+    numberOfSubjects: 10,
+
     // # Treatments definition.
 
     // They can contain any number of properties, and also overwrite
