@@ -28,9 +28,6 @@
 {
     font-size: 100px;
     font-weight: 700;
-    opacity:0;
-    transition:0.3s;
-    transform: scale(0);
 }
 
 /*--------------------------------*/
@@ -47,10 +44,24 @@
     position:fixed;
 }
 /*--------------------------------*/
-.myButton
+.myButton1
 {
     box-shadow: 0px 4px 0px 0px black;
     outline:none;
+    transition:0.3s;
+    border-radius: 150px;
+    height: 69px;
+    width: 400px;
+    font-size: 35px;
+    font-weight: 800;
+}
+.myButton2
+{
+    box-shadow: 0px 4px 0px 0px black;
+    outline:none;
+    transform:scale(0);
+    position:absolute;
+    margin-left:-300px;
     transition:0.3s;
     border-radius: 150px;
     height: 69px;
@@ -58,17 +69,31 @@
     font-size: 35px;
     font-weight: 800;
 }
-.myButton:hover
+.myButton1:hover
 {
     background:green;
     color:white;
 }
-.myButton:active
+.myButton2:hover
+{
+    background:green;
+    color:white;
+}
+.myButton1:active
 {
     box-shadow: 0px 1px 0px 0px black;
      transform: translateY(3px);
 }
-.myButton:focus
+.myButton1:focus
+{
+    outline:none;
+}
+.myButton2:active
+{
+    box-shadow: 0px 1px 0px 0px black;
+     transform: translateY(3px);
+}
+.myButton2:focus
 {
     outline:none;
 }

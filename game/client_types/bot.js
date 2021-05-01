@@ -69,14 +69,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     });
 
-    stager.extendStep('solveDisagreement', {
+    stager.extendStep('calculateScore', {
 
         init: function() {
 
         },
 
         cb: function() {
-
+            this.node.done();
         },
 
         done: function() {

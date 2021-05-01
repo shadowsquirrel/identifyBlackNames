@@ -28,17 +28,24 @@ window.onload = function() {
 
     var displayNextName = function() {
 
-        node.emit('counterWatcher', nameIndex)
+        transition();
 
-        if(nameIndex <= 9) {
+        setTimeout(()=>{
 
-            $('#myName').html(nameList[nameIndex]);
+            node.emit('counterWatcher', nameIndex)
 
-        } else {
+            if(nameIndex <= 9) {
 
-            node.emit('done');
+                $('#myName').html(nameList[nameIndex]);
 
-        }
+            } else {
+
+                node.emit('done');
+
+            }
+
+        }, 500)
+
 
     }
 
@@ -63,6 +70,17 @@ window.onload = function() {
 
     })
 
+
+
+    var transition = function() {
+
+        $('.nameText').css({'opacity':'0', 'transform':'scale(0)'});
+
+        setTimeout(()=>{
+            $('.nameText').css({'opacity':'1', 'transform':'scale(1)'})
+        }, 500)
+
+    }
 
 
 

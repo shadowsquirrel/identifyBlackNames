@@ -33,49 +33,68 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         this.doneButton = node.widgets.append('DoneButton', header);
 
-        // name counter lister on the client side
+
+        //--------------------------------------------------------------------//
+        //---------------------- IDENTIFY RACE STAGE -------------------------//
+        //--------------------------------------------------------------------//
+        //-------------- HTML LISTENERS THAT TALKS TO LOGIC ------------------//
+        //--------------------------------------------------------------------//
+
+        // name counter listener on the client side
+        // triggered by html side through emit('nameEvaluated')
         // listens and reports back to logic everytime
         // a name is evaluated
-
         node.on('nameEvaluated', function() {
             node.say('nameEvaluatedLOGIC', 'SERVER')
         })
 
-
         // player evaluated the name as white
+        // triggered by html side through emit('whiteName')
         // send this message to logic
         node.on('whiteName', function(){
-
             node.say('nameLOGIC', 'SERVER', 0);
-
         })
 
         // player evaluated the name as black
+        // triggered by html side through emit('blackName')
         // send this message to logic
         node.on('blackName', function(){
-
             node.say('nameLOGIC', 'SERVER', 1);
-
         })
 
+        //--------------------------------------------------------------------//
+        //------------------------ GET SCORE STAGE ---------------------------//
+        //--------------------------------------------------------------------//
+        //-------------- HTML LISTENERS THAT TALKS TO LOGIC ------------------//
+        //--------------------------------------------------------------------//
+
+        // player request logic to calculate its score
+        // triggered by html side through emit('requestScore')
+        // sends this message to logic (logic only needs player id)
+        node.on('requestScore', function() {
+            node.say('score', 'SERVER')
+        })
+
+        //--------------------------------------------------------------------//
+        //--------------- GENERIC DONE WITH THE STAGE LISTENER ---------------//
+        //--------------------------------------------------------------------//
+
+        node.on('done', function() {
+            // this.talk('YOU ARE DONE WITH THE NAMES')
+            node.done();
+        })
+
+        //--------------------------------------------------------------------//
+        //-------------------- LISTENERS FOR DEBUGGING -----------------------//
+        //--------------------------------------------------------------------//
 
         this.talk = function(msg){
             node.say('debug', 'SERVER', msg);
         };
 
-
         node.on('counterWatcher', function(msg) {
             this.talk('HTML COUNTER WATCHER: ' + msg)
         })
-
-
-        node.on('done', function() {
-            this.talk('YOU ARE DONE WITH THE NAMES')
-            node.done();
-        })
-
-
-
 
     });
 
@@ -91,15 +110,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         cb: function() {
 
-            this.talk('CLIENT SIDE IDENTIFY RACE')
+            // this.talk('CLIENT SIDE IDENTIFY RACE')
 
             // retrieve name list from logic
-            // retrieve the name list counter (in case of disconnect)
+            // retrieve the name list current index (in case of disconnect)
             node.get('nameList', function(msg) {
 
-                this.talk('INSIDE NODE.GET NAMELIST')
-                this.talk('NAME LIST RECEIVED: ' + msg.list)
-                this.talk('NAME LIST COUNTER RECEIVED: ' + msg.index)
+                // this.talk('INSIDE NODE.GET NAMELIST')
+                // this.talk('NAME LIST RECEIVED: ' + msg.list)
+                // this.talk('NAME LIST COUNTER RECEIVED: ' + msg.index)
 
                 node.emit('nameListHTML', msg);
 
@@ -109,13 +128,19 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     });
 
-    stager.extendStep('solveDisagreement', {
+    stager.extendStep('calculateScore', {
 
         donebutton: false,
 
-        frame: 'solveDisagreement.htm',
+        frame: 'calculateScore.htm',
 
         cb: function() {
+
+            // Upon request to the logic, logic returns the score of the player
+            // score data is then sent to HTML
+            node.on.data('myScore', function(msg) {
+                node.emit('myScoreHTML', msg.data);
+            })
 
         }
 

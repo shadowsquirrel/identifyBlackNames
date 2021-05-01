@@ -50,42 +50,60 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             'Murat Ulutin'
         ]
 
-        // Initialize any player specific variable
-        node.game.initializePlayer = function() {
+        // Some random correct answers for now
+        node.game.correctAnswerList = [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+        ]
+
+        // initialize a single player's player specific variables
+        node.game.initializeSinglePlayer = function(player) {
+
+            player.indexOfNextNameToEvaluate = 0;
+
+            player.shuffledNameList = J.shuffle(node.game.nameList);
+
+            player.evaluationList = Array(node.game.nameList.lenght).fill(-1);
+
+            player.unmatchedNamesList = undefined;
+
+            player.score = undefined;
+
+        }
+
+        // Initialize all players' player specific variables
+        node.game.initializeAllPlayers = function() {
 
             node.game.pl.each(function(player) {
 
-                player.indexOfNextNameToEvaluate = 0;
-                player.shuffledNameList = J.shuffle(node.game.nameList);
-                // below is for debug use the commented above for randomization
-                // player.shuffledNameList = node.game.nameList;
-                player.evaluationList = Array(node.game.nameList.lenght).fill(-1);
-                player.unmatchedNamesList = undefined;
+                node.game.initializeSinglePlayer(player);
 
             })
 
         }
 
-        node.game.initializePlayer();
-
-
-        // DEBUG
-        node.game.pl.each(function(player) {
-            // console.log(player.shuffledNameList);
-        })
+        node.game.initializeAllPlayers();
 
 
         // Listener ready to send the shuffles name list to clients
         node.on('get.nameList', function(msg) {
 
-            // console.log('LOGIC SIDE');
-            // console.log('PLAYER REQUESTED NAMELIST');
+            console.log('LOGIC SIDE');
+            console.log('PLAYER REQUESTED NAMELIST');
 
             let myData = {};
 
             let player = node.game.pl.get(msg.from);
 
-            // console.log('PLAYER ' + player.count);
+            console.log('PLAYER ' + player.count);
 
             let index = player.indexOfNextNameToEvaluate;
             let list = player.shuffledNameList;
@@ -93,8 +111,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             myData.list = list
             myData.index = index;
 
-            // console.log('NAMELIST TO BE SENT: ' + myData.list);
-            // console.log('NAME COUNTER TO BE SENT: ' + myData.index);
+            console.log('NAMELIST TO BE SENT: ' + myData.list);
+            console.log('NAME COUNTER TO BE SENT: ' + myData.index);
 
             return myData
 
@@ -106,8 +124,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // and the evaluation of the respective name
         node.on.data('nameLOGIC', function(msg) {
 
-            // console.log('INSIDE NAMELOGIC');
-            // console.log('data: ' + msg.data);
+            console.log('INSIDE NAMELOGIC');
+            console.log('data: ' + msg.data);
 
             let player = node.game.pl.get(msg.from);
             let index = player.indexOfNextNameToEvaluate;
@@ -117,80 +135,139 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             player.indexOfNextNameToEvaluate += 1;
 
 
-            // console.log(player.evaluationList);
+            console.log(player.evaluationList);
 
         })
 
 
+        // calculates the ordered decision of a single player
+        node.game.getOrderedDecisionOfSinglePlayer = function(player) {
 
-        node.game.getOrderedDecision = function() {
+            var myList = player.shuffledNameList;
+            var myDecisionList = player.evaluationList;
+            var originalList = node.game.nameList;
+
+            var orderedList = [];
+
+            for(var i = 0; i < myDecisionList.length; i++) {
+
+                orderedList[i] = myDecisionList[myList.indexOf(originalList[i])];
+
+            }
+
+            player.orderedDecisionList = orderedList;
+
+            console.log();
+            console.log();
+            console.log('INSIDE getOrderedDecisionOfSinglePlayer');
+            console.log();
+            console.log();
+            console.log('my shuffled name list');
+            console.log(myList);
+            console.log('my decision list');
+            console.log(myDecisionList);
+            console.log('initial name list');
+            console.log(originalList);
+            console.log('my decision list reordered based on original list');
+            console.log(orderedList);
+            console.log();
+            console.log();
+
+        }
+
+        node.on.data('orderedDecision', function(msg) {
+
+            let player = node.game.pl.get(msg.from);
+            node.game.getOrderedDecisionOfSinglePlayer(player);
+
+        })
+
+        // calculates the ordered decision of all players
+        node.game.getOrderedDecisionOfAllPlayers = function() {
 
             node.game.pl.each(function(player) {
 
-                var myList = player.shuffledNameList;
-                var myDecisionList = player.evaluationList;
-                var originalList = node.game.nameList;
-
-                var orderedList = [];
-
-                for(var i = 0; i < myDecisionList.length; i++) {
-
-                    orderedList[i] = myDecisionList[myList.indexOf(originalList[i])];
-
-                }
-
-                player.orderedDecisionList = orderedList;
-
-
-                // console.log();
-                // console.log();
-                // console.log('my shuffled name list');
-                // console.log(myList);
-                // console.log('my decision list');
-                // console.log(myDecisionList);
-                // console.log('initial name list');
-                // console.log(originalList);
-                // console.log('my decision list reordered based on original list');
-                // console.log(orderedList);
-                // console.log();
-                // console.log();
-
+                node.game.getOrderedDecisionOfSinglePlayer(player);
 
             })
 
-
         }
 
 
-        node.game.sum2Arrays = function(array1, array2) {
+        node.game.calculateScoreOfSinglePlayer = function(player) {
 
-            var sumArray = [];
+            var orderedDecisionList = player.orderedDecisionList;
+            var answerList = node.game.correctAnswerList;
+            var scoreList = Array(answerList.length);
 
-            for(var i = 0; i < array1.length; i++){
-                sum.push(array1[i] + array2[i]);
+            console.log();
+            console.log();
+            console.log('INSIDE CALCULATE SCORE OF SINGLE PLAYER');
+            console.log('ORDERED DECISION LIST: ');
+            console.log(orderedDecisionList);
+            console.log();
+            console.log('ANSWER LIST: ');
+            console.log(answerList);
+            console.log();
+            console.log();
+
+            for(var i = 0; i < answerList.length; i++) {
+
+                console.log();
+                console.log('INSIDE THE SCORE CALCULATION LOOP');
+
+                scoreList[i] = (orderedDecisionList[i] === answerList[i]);
+
+                console.log('SCORE FOR THE ' + i + 'TH ANSWER IS ' + scoreList[i]);
+                console.log();
+
             }
 
-            return sumArray
+            var score = scoreList.reduce((a, b) => a + b, 0);
+
+            console.log('TOTAL SCORE: ' + score);
+
+            player.score = score;
 
         }
 
-        node.game.sumArrays = function() {
+        node.on.data('score', function(msg) {
 
-            var allArrays = [];
+            console.log();
+            console.log('LOGIC SIDE INSIDE REQUESTING SCORE');
+            console.log();
 
-            for(var i = 0; i < )
+            let player = node.game.pl.get(msg.from);
+
+            console.log();
+            console.log('GENERATING PLAYER\'S ORDERED DECISION LIST');
+            console.log();
+
+            node.game.getOrderedDecisionOfSinglePlayer(player);
+
+            console.log();
+            console.log('PLAYER\'S ORDERED DECISION IS GENERATED');
+            console.log();
+
+            console.log('PLAYER REQUESTING SCORE IS PLAYER ' + player.count);
+            console.log();
+
+            node.game.calculateScoreOfSinglePlayer(player);
+
+            node.say('myScore', player.id, player.score)
+
+        })
+
+
+        node.game.calculateScoreOfAllPlayers = function() {
+
+            node.game.pl.each(function(player) {
+
+                node.game.calculateScoreOfSinglePlayer(player);
+
+            })
 
         }
-
-        // TO DO
-        // Figure out a way to reverse the random shuffle - DONE
-        // of each player's shuffled name list - DONE
-        // aggregate their results
-        // identify the names that x% of the subject do not agree
-        // update each players unmatchedNamesList
-
-
-        // send the unmatchedNamesList to the players
 
 
 
@@ -221,7 +298,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     });
 
-    stager.extendStep('identifyRace', {
+    stager.extendStep('calculateScore', {
 
         init: function() {
 
@@ -229,7 +306,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             console.log();
             console.log('****************************');
             console.log('****************************');
-            console.log('******* IDENTIFY RACE ******');
+            console.log('****** CALCULATE SCORE *****');
             console.log('****************************');
             console.log('****************************');
             console.log();
@@ -246,38 +323,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         done: function() {
 
 
-
-        }
-
-    });
-
-    stager.extendStep('solveDisagreement', {
-
-        init: function() {
-
-            console.log();
-            console.log();
-            console.log('****************************');
-            console.log('****************************');
-            console.log('**** SOLVE DISAGREEMENT ****');
-            console.log('****************************');
-            console.log('****************************');
-            console.log();
-            console.log();
-
-
-            node.game.getOrderedDecision();
-
-
-        },
-
-        cb: function() {
-
-
-
-        },
-
-        done: function() {
 
         }
 

@@ -14,7 +14,7 @@ module.exports = function(stager, settings) {
      stager
         .next('instructions')
         .next('identifyRace')
-        .next('solveDisagreement')
+        .next('calculateScore')
         .next('end')
         .gameover();
 
