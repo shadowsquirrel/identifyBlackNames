@@ -35,17 +35,20 @@ window.onload = function() {
 
         $('.innerWrap').css({
             'transition':'1s',
-            'transform' : 'scale(0) rotateY(0turn)'
+            'transform' : 'scale(0) rotateY(0turn)',
+            'opacity':'0'
         })
 
         setTimeout(()=>{
             $('.innerWrap').css({
                 'transition':'1s',
-                'transform' : 'scale(1)'
+                'transform' : 'scale(1)',
+                'opacity':'1'
             })
         }, 1000)
 
         $('.myButton1').css({
+            'transition':'1s',
             'transform':'scale(0)'
         })
 
@@ -53,7 +56,7 @@ window.onload = function() {
             $('.myButton2').css({
                 'transform':'scale(1)'
             })
-        }, 2000)
+        }, 3000)
 
 
         setTimeout(()=>{
