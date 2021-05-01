@@ -65,8 +65,9 @@
 }
 .myButton:active
 {
-    box-shadow: 0px 1px 0px 0px black;
-     transform: translateY(3px);
+    box-shadow: 0px 0px 0px 0px black;
+    transform: translateY(4px);
+    background:red;
 }
 .myButton:focus
 {
