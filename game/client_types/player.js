@@ -45,6 +45,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // No waiting screen
         W.init({ waitScreen: false });
 
+        // Variable to be used to store in the memory
+        this.node.game.myOrderedDecisionList = [];
+        this.node.game.myScore = undefined;
+
 
         //--------------------------------------------------------------------//
         //---------------------- IDENTIFY RACE STAGE -------------------------//
@@ -84,7 +88,17 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // triggered by html side through emit('requestScore')
         // sends this message to logic (logic only needs player id)
         node.on('requestScore', function() {
-            node.say('score', 'SERVER')
+            node.say('score', 'SERVER');
+        })
+
+        // Listens Logic to retreive/store the orderedDecisionList of the client
+        node.on.data('myOrderedList', function(msg) {
+
+            this.talk('CLIENT SIDE: INSIDE node.on.data(myOrderedList)');
+            this.talk('my orderedList is: ' + msg.data);
+
+            this.node.game.orderedDecisionList = msg.data;
+
         })
 
         //--------------------------------------------------------------------//
@@ -94,6 +108,39 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         node.on('done', function() {
             this.talk('YOU ARE DONE WITH THE NAMES')
             node.done();
+        })
+
+        //--------------------------------------------------------------------//
+        //---------------------- DONE AND SAVE LISTENER ----------------------//
+        //--------------------------------------------------------------------//
+
+        node.on('doneAndSave', function() {
+
+            this.talk('CLIENT SIDE: node.on(doneAndSave)')
+            this.talk('Done with the game, storing client data')
+
+
+            // You can never know when the player will disconnect
+            // So when the done button for the last stage is triggered
+            // emit on doneAndSave is triggered which in turn request data
+            // from logic side so that we can store data in the memory
+            // using node.done through client side data
+            node.get('playerData', function(msg) {
+
+                this.talk('CLIENT ORDERED DECISION LIST: ' + msg.list)
+                this.talk('CLIENT SCORE: ' + msg.score)
+
+                this.node.game.myOrderedDecisionList = msg.list;
+                this.node.game.myScore = msg.score;
+
+                node.done({
+                    orderedDecisionList: this.node.game.myOrderedDecisionList,
+                    score: this.node.game.myScore
+                });
+
+            })
+
+
         })
 
         //--------------------------------------------------------------------//

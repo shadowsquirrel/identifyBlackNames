@@ -192,6 +192,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             console.log();
             console.log();
 
+            // sending the orderedList data to client
+            node.say('myOrderedList', player.id, orderedList);
+
         }
 
         node.on.data('orderedDecision', function(msg) {
@@ -309,12 +312,32 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             memory.add({
                 player: myID,
-                stage: {stage: 2, step:1, round:1},
+                stage: {stage: 1, step:1, round:1},
                 answers: decisionList,
                 score: score
             })
 
+            node.game.memory.save('data.json');
+
         }
+
+        node.on('get.playerData', function(msg) {
+
+            let myData = {};
+
+            let player = node.game.pl.get(msg.from);
+            let myScore = player.score;
+            let myOrderedList = player.orderedDecisionList;
+
+            myData = {
+                score: myScore,
+                list: myOrderedList
+            }
+
+            return myData
+
+
+        })
 
 
         //-------- SOME DEBUG METHODS --------//
@@ -409,7 +432,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         done: function() {
 
-
+            node.game.memory.save('data.json');
 
         }
 
@@ -447,6 +470,18 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     });
 
     stager.extendStep('end', {
+
+        init: function() {
+            console.log();
+            console.log();
+            console.log('****************************');
+            console.log('****************************');
+            console.log('*** STORE DATA IN MEMORY ***');
+            console.log('****************************');
+            console.log('****************************');
+            console.log();
+            console.log();
+        },
 
         cb: function() {
             node.game.memory.save('data.json');

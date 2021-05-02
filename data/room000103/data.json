@@ -1,0 +1,33 @@
+[{
+    "time": 9623,
+    "timeup": false,
+    "done": true,
+    "player": "710121812098869",
+    "stage": {
+        "stage": 1,
+        "step": 1,
+        "round": 1
+    },
+    "timestamp": 1619968908394
+}, {
+    "player": "710121812098869",
+    "stage": {
+        "stage": 1,
+        "step": 1,
+        "round": 1
+    },
+    "answers": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1
+    ],
+    "score": 6,
+    "timestamp": 1619968911919
+}]

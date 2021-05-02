@@ -68,7 +68,7 @@ window.onload = function() {
 
     $('#doneButton').click(function() {
 
-        node.emit('done');
+        node.emit('doneAndSave');
 
     })
 
