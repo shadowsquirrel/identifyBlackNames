@@ -13,7 +13,15 @@
 
 "use strict";
 
+const ngc = require('nodegame-client');
+const J = ngc.JSUS;
+const stepRules = ngc.stepRules;
+
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
+
+
+    stager.setDefaultStepRule(stepRules.SOLO);
+
 
     stager.setOnInit(function() {
 
@@ -32,6 +40,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         this.visualTimer = node.widgets.append('VisualTimer', header);
 
         this.doneButton = node.widgets.append('DoneButton', header);
+
+
+        // No waiting screen
+        W.init({ waitScreen: false });
 
 
         //--------------------------------------------------------------------//
@@ -80,7 +92,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         //--------------------------------------------------------------------//
 
         node.on('done', function() {
-            // this.talk('YOU ARE DONE WITH THE NAMES')
+            this.talk('YOU ARE DONE WITH THE NAMES')
             node.done();
         })
 
@@ -92,8 +104,76 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             node.say('debug', 'SERVER', msg);
         };
 
-        node.on('counterWatcher', function(msg) {
-            this.talk('HTML COUNTER WATCHER: ' + msg)
+        // Listens to HTML.js, reports active index
+        node.on('indexWatcher', function(msg) {
+
+            this.talk('MESSAGE FROM HTML: -> CURRENT ACTIVE INDEX: ' + msg)
+
+        })
+
+
+        // ---- SIMULATING DISCONNECT ---- //
+        node.on.data('disconnect', function() {
+
+            this.talk('DISCONNECTION COMMAND RECEIVED')
+
+            setTimeout(()=>{
+
+                this.talk('Fake disconnection will be initiated in 5 seconds')
+
+                setTimeout(()=>{
+                    this.talk('4...')
+                    setTimeout(()=>{
+                        this.talk('3...')
+                        setTimeout(()=>{
+                            this.talk('2...')
+                            setTimeout(()=>{
+                                this.talk('1...')
+                                setTimeout(()=>{
+
+                                    this.talk('ACTIVE LIST INDEX: ' + this.node.game.activeIndex
+                                    + '\n'
+                                    + 'ACTIVE NAME TO BE EVALUATED: '
+                                    + this.node.game.clientNameList[this.node.game.activeIndex])
+
+                                    setTimeout(()=>{
+                                        node.socket.reconnect();
+                                    }, 1000)
+                                    node.socket.disconnect();
+                                    node.game.stop();
+                                    // When I try to reconnect after disconnect
+                                    // below commands are not executed/visited
+                                    // this.talk('CHECKING IF I VISIT HERE')
+                                    // node.timer.random(2000, 4000).exec(function() {
+                                    //     node.socket.reconnect();
+                                    // });
+
+                                }, 1000)
+                            }, 1000)
+                        }, 1000)
+                    }, 1000)
+                }, 1000)
+
+            }, 5000)
+
+        })
+
+        //--------------------------------------------------------------------//
+        //-------------------- VARIABLES FOR DEBUGGING -----------------------//
+        //--------------------------------------------------------------------//
+
+
+        this.node.game.activeIndex = 0;
+        this.node.game.clientNameList = [];
+
+        // Listens to logic for the active index (next one?)
+        node.on.data('activeIndexListener', function(msg) {
+
+            this.talk('RECEIVED MESSAGE FROM LOGIC ON THE CURRENT INDEX')
+            this.node.game.activeIndex = msg.data + 1;
+            this.talk('LAST INDEX EVALUATED: ' + msg.data);
+            this.talk('NEXT INDEX TO BE EVALUATED: ' + this.node.game.activeIndex);
+
         })
 
     });
@@ -104,25 +184,94 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('identifyRace', {
 
+        // reconnect: function(player, reconOpts) {
+        //
+        //     console.log();
+        //     console.log();
+        //     console.log('*****************************');
+        //     console.log('*****************************');
+        //     console.log('* RECONNECTION IS ATTEMPTED *');
+        //     console.log('*****************************');
+        //     console.log('*****************************');
+        //     console.log();
+        //     console.log();
+        //
+        //     reconOpts.activeIndex = player.indexOfNextNameToEvaluate;
+        //
+        //     console.log('DO WE STILL PLAYER INFO IN THE LOGIC?');
+        //     console.log(player.indexOfNextNameToEvaluate);
+        //
+        //     // reconOpts.cb: function(reconOpts) {
+        //     //     console.log('INSIDE RECONNECT CALL BACK FUNCTION');
+        //     //     node.game.counter = reconOpts.counter;
+        //     // };
+        // },
+
+
         donebutton: false,
 
         frame: 'identifyRace.htm',
 
         cb: function() {
 
-            // this.talk('CLIENT SIDE IDENTIFY RACE')
+            this.talk('CLIENT SIDE IDENTIFY RACE');
+            this.talk('');
+            this.talk('REQUESTING NAME LIST FROM LOGIC');
+            this.talk('');
 
             // retrieve name list from logic
             // retrieve the name list current index (in case of disconnect)
             node.get('nameList', function(msg) {
 
-                // this.talk('INSIDE NODE.GET NAMELIST')
-                // this.talk('NAME LIST RECEIVED: ' + msg.list)
-                // this.talk('NAME LIST COUNTER RECEIVED: ' + msg.index)
+                this.talk('NAME LIST RECEIVED: ' + msg.list)
+                this.talk('NAME LIST ACTIVE INDEX RECEIVED: ' + msg.index)
+
+                this.node.game.clientNameList = msg.list;
 
                 node.emit('nameListHTML', msg);
 
             })
+
+
+            // ---- SIMULATING DISCONNECT ---- //
+            // setTimeout(()=>{
+            //
+            //     this.talk('Fake disconnection will be initiated in 5 seconds')
+            //
+            //
+            //     setTimeout(()=>{
+            //         this.talk('4...')
+            //         setTimeout(()=>{
+            //             this.talk('3...')
+            //             setTimeout(()=>{
+            //                 this.talk('2...')
+            //                 setTimeout(()=>{
+            //                     this.talk('1...')
+            //                     setTimeout(()=>{
+            //
+            //                         this.talk('ACTIVE LIST INDEX: ' + this.node.game.activeIndex
+            //                         + '\n'
+            //                         + 'ACTIVE NAME TO BE EVALUATED: '
+            //                         + this.node.game.clientNameList[this.node.game.activeIndex])
+            //
+            //                         setTimeout(()=>{
+            //                             node.socket.reconnect();
+            //                         }, 3000)
+            //                         node.socket.disconnect();
+            //                         node.game.stop();
+            //                         // node.timer.random(2000, 4000).exec(function() {
+            //                         //     node.socket.reconnect();
+            //                         // });
+            //
+            //                     }, 1000)
+            //                 }, 1000)
+            //             }, 1000)
+            //         }, 1000)
+            //     }, 1000)
+            //
+            //
+            //
+            // }, 5000)
 
         }
 

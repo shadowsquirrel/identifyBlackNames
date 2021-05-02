@@ -9,8 +9,9 @@
 
 "use strict";
 
-var ngc = require('nodegame-client');
-var J = ngc.JSUS;
+const ngc = require('nodegame-client');
+const J = ngc.JSUS;
+const stepRules = ngc.stepRules;
 
 module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
@@ -20,6 +21,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     const NOS = settings.numberOfSubjects;
 
     // Must implement the stages here.
+
+    stager.setDefaultStepRule(stepRules.SOLO);
 
     stager.setOnInit(function() {
 
@@ -96,14 +99,15 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // Listener ready to send the shuffles name list to clients
         node.on('get.nameList', function(msg) {
 
-            console.log('LOGIC SIDE');
-            console.log('PLAYER REQUESTED NAMELIST');
+            console.log('LOGIC SIDE - GET.NAMELIST');
+            console.log('PLAYER REQUESTED NAMELIST IS:');
 
             let myData = {};
 
             let player = node.game.pl.get(msg.from);
 
             console.log('PLAYER ' + player.count);
+            console.log();
 
             let index = player.indexOfNextNameToEvaluate;
             let list = player.shuffledNameList;
@@ -111,8 +115,10 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             myData.list = list
             myData.index = index;
 
-            console.log('NAMELIST TO BE SENT: ' + myData.list);
-            console.log('NAME COUNTER TO BE SENT: ' + myData.index);
+            console.log('NAME LIST TO BE SENT: ' + myData.list);
+            console.log();
+            console.log('ACTIVE NAME INDEX TO BE SENT: ' + myData.index);
+            console.log();
 
             return myData
 
@@ -124,8 +130,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         // and the evaluation of the respective name
         node.on.data('nameLOGIC', function(msg) {
 
-            console.log('INSIDE NAMELOGIC');
-            console.log('data: ' + msg.data);
+            console.log();
+            console.log();
+            console.log();
+            console.log('IN LOGIC SIDE, RECEIVED DECISION FROM CLIENT');
+            console.log();
+            console.log('INSIDE node.on.data(nameLOGIC)');
+            console.log();
+            console.log('data received: ' + msg.data);
 
             let player = node.game.pl.get(msg.from);
             let index = player.indexOfNextNameToEvaluate;
@@ -134,8 +146,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             player.evaluationList[index] = msg.data;
             player.indexOfNextNameToEvaluate += 1;
 
-
+            console.log('player evaluation list updated with the new data:');
             console.log(player.evaluationList);
+
+            console.log();
+            console.log('For debugging: SENDING INDEX INFO TO CLIENT');
+            node.say('activeIndexListener', player.id, index)
 
         })
 
@@ -192,6 +208,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             })
 
         }
+
 
 
         node.game.calculateScoreOfSinglePlayer = function(player) {
@@ -258,7 +275,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         })
 
-
         node.game.calculateScoreOfAllPlayers = function() {
 
             node.game.pl.each(function(player) {
@@ -287,6 +303,22 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             console.log(msg.data);
         });
 
+        // force disconnect player
+        node.game.forceDisconnect = function(playerIndex) {
+
+            let somePlayer = node.game.pl.db[playerIndex];
+
+            console.log('****************************');
+            console.log('****************************');
+            console.log('Player ' + somePlayer.count +
+            ' is chosen for disconnection: ');
+            console.log('****************************');
+            console.log('****************************');
+
+            node.say('disconnect', somePlayer.id);
+
+        }
+
 
     });
 
@@ -297,6 +329,61 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
 
     });
+
+    stager.extendStep('identifyRace', {
+
+        reconnect: function(player, reconOpts) {
+
+            console.log();
+            console.log();
+            console.log('*****************************');
+            console.log('*****************************');
+            console.log('* RECONNECTION IS ATTEMPTED *');
+            console.log('*****************************');
+            console.log('*****************************');
+            console.log();
+            console.log();
+
+            reconOpts.activeIndex = player.indexOfNextNameToEvaluate;
+
+            console.log('DO WE STILL PLAYER INFO IN THE LOGIC?');
+            console.log(player.indexOfNextNameToEvaluate);
+
+            // reconOpts.cb: function(reconOpts) {
+            //     console.log('INSIDE RECONNECT CALL BACK FUNCTION');
+            //     node.game.counter = reconOpts.counter;
+            // };
+        },
+
+        init: function() {
+
+            console.log();
+            console.log();
+            console.log('****************************');
+            console.log('****************************');
+            console.log('******* IDENTIFY RACE ******');
+            console.log('****************************');
+            console.log('****************************');
+            console.log();
+            console.log();
+
+        },
+
+        cb: function() {
+
+            // force disconnect player indexed 0
+            node.game.forceDisconnect(0);
+
+        },
+
+        done: function() {
+
+
+
+        }
+
+    });
+
 
     stager.extendStep('calculateScore', {
 

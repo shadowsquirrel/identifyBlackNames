@@ -111,7 +111,7 @@ module.exports = {
     notify: {
 
         // When a player connects / disconnects.
-        onConnect: false,
+        onConnect: true,
 
         // When a player changes a stage / step.
         onStageUpdate: false,
@@ -216,7 +216,7 @@ module.exports = {
      *
      * Default: false
      */
-    // noAuthCookie: false,
+    noAuthCookie: false,
 
     /**
      * ### roomOwnDataDir (boolean) Optional

@@ -32,7 +32,7 @@ window.onload = function() {
 
         setTimeout(()=>{
 
-            node.emit('counterWatcher', nameIndex)
+            node.emit('indexWatcher', nameIndex)
 
             if(nameIndex <= 9) {
 

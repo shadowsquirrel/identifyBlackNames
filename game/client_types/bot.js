@@ -58,8 +58,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
 
             // this.node.game.talk('BOT IS MAKING DECISION')
-            this.node.game.makeDecision();
-            this.node.done();
+            // this.node.game.makeDecision();
+            // this.node.done();
 
         },
 
@@ -76,7 +76,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         },
 
         cb: function() {
-            this.node.done();
+            // this.node.done();
         },
 
         done: function() {
