@@ -111,8 +111,12 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         })
 
+        // ----------------------------------------- //
+        // --------- SIMULATING DISCONNECT --------- //
+        // ----------------------------------------- //
 
-        // ---- SIMULATING DISCONNECT ---- //
+        // Listener that triggers disconnect
+        // Is activated from logic side
         node.on.data('disconnect', function() {
 
             this.talk('DISCONNECTION COMMAND RECEIVED')
@@ -157,6 +161,41 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             }, 5000)
 
         })
+
+        // Listener that triggers disconnect
+        // Is activated from html debug button
+        node.on('disconnectHTML', function() {
+
+            this.talk('Fake disconnection will be initiated in 5 seconds')
+            setTimeout(()=>{
+                this.talk('4...')
+                setTimeout(()=>{
+                    this.talk('3...')
+                    setTimeout(()=>{
+                        this.talk('2...')
+                        setTimeout(()=>{
+                            this.talk('1...')
+                            setTimeout(()=>{
+
+                                this.talk('ACTIVE LIST INDEX: ' + this.node.game.activeIndex
+                                + '\n'
+                                + 'ACTIVE NAME TO BE EVALUATED: '
+                                + this.node.game.clientNameList[this.node.game.activeIndex])
+
+                                setTimeout(()=>{
+                                    node.socket.reconnect();
+                                }, 1000)
+                                node.socket.disconnect();
+                                node.game.stop();
+
+                            }, 1000)
+                        }, 1000)
+                    }, 1000)
+                }, 1000)
+            }, 1000)
+
+        })
+
 
         //--------------------------------------------------------------------//
         //-------------------- VARIABLES FOR DEBUGGING -----------------------//
@@ -288,7 +327,13 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
             // Upon request to the logic, logic returns the score of the player
             // score data is then sent to HTML
             node.on.data('myScore', function(msg) {
+
+                // sends score data to HTML
                 node.emit('myScoreHTML', msg.data);
+
+                // now that score is calculated save everything in the memory
+                node.say('storeData', 'SERVER');
+
             })
 
         }

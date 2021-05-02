@@ -46,7 +46,6 @@ window.onload = function() {
 
         }, 500)
 
-
     }
 
 
@@ -70,19 +69,22 @@ window.onload = function() {
 
     })
 
-
-
     var transition = function() {
 
+        $('.myButton').css({'transform':'scale(0)'});
         $('.nameText').css({'opacity':'0', 'transform':'scale(0)'});
 
         setTimeout(()=>{
+            $('.myButton').css({'transform':'scale(1)'});
             $('.nameText').css({'opacity':'1', 'transform':'scale(1)'})
         }, 500)
 
     }
 
+    $('#disconnectButton').click(function() {
 
+        node.emit('disconnectHTML');
 
+    })
 
 };

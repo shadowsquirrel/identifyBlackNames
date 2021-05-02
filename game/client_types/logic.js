@@ -18,6 +18,9 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
     var node = gameRoom.node;
     var channel =  gameRoom.channel;
 
+    // Store reference.
+    let memory = node.game.memory;
+
     const NOS = settings.numberOfSubjects;
 
     // Must implement the stages here.
@@ -286,6 +289,32 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
 
 
+        node.on.data('storeData', function(msg) {
+
+            console.log();
+            console.log('STORING PLAYER INFO IN THE DATABASE');
+            console.log();
+
+            let player = node.game.pl.get(msg.from);
+
+            node.game.storeData(player);
+
+        })
+
+        node.game.storeData = function(player) {
+
+            let myID = player.id;
+            let decisionList = player.orderedDecisionList;
+            let score = player.score;
+
+            memory.add({
+                player: myID,
+                stage: {stage: 2, step:1, round:1},
+                answers: decisionList,
+                score: score
+            })
+
+        }
 
 
         //-------- SOME DEBUG METHODS --------//
@@ -320,6 +349,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
 
 
+
+
     });
 
     stager.extendStep('instructions', {
@@ -346,7 +377,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             reconOpts.activeIndex = player.indexOfNextNameToEvaluate;
 
-            console.log('DO WE STILL PLAYER INFO IN THE LOGIC?');
+            console.log('DO WE STILL HAVE THE PLAYER INFO STORED IN THE LOGIC?');
             console.log(player.indexOfNextNameToEvaluate);
 
             // reconOpts.cb: function(reconOpts) {
@@ -372,7 +403,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         cb: function() {
 
             // force disconnect player indexed 0
-            node.game.forceDisconnect(0);
+            // node.game.forceDisconnect(0);
 
         },
 

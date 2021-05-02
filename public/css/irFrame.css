@@ -57,6 +57,7 @@
     width: 200px;
     font-size: 35px;
     font-weight: 800;
+    transform:scale(0);
 }
 .myButton:hover
 {
@@ -70,6 +71,38 @@
     background:red;
 }
 .myButton:focus
+{
+    outline:none;
+}
+.myButton0
+{
+    padding-top:6px;
+    padding-left:23px;
+    margin-top:20px;
+    margin-left:720px;
+    position:absolute;
+    box-shadow: 0px 4px 0px 0px black;
+    outline:none;
+    transition:0.3s;
+    border-radius: 150px;
+    height: 69px;
+    width: 240px;
+    font-size: 35px;
+    font-weight: 800;
+    background: #efefef;
+}
+.myButton0:hover
+{
+    background:green;
+    color:white;
+}
+.myButton0:active
+{
+    box-shadow: 0px 0px 0px 0px black;
+    transform: translateY(4px);
+    background:red;
+}
+.myButton0:focus
 {
     outline:none;
 }
