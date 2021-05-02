@@ -216,7 +216,7 @@ module.exports = {
      *
      * Default: false
      */
-    noAuthCookie: false,
+    noAuthCookie: true,
 
     /**
      * ### roomOwnDataDir (boolean) Optional
