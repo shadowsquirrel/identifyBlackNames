@@ -192,12 +192,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                     }, 1000)
                                     node.socket.disconnect();
                                     node.game.stop();
-                                    // When I try to reconnect after disconnect
-                                    // below commands are not executed/visited
-                                    // this.talk('CHECKING IF I VISIT HERE')
-                                    // node.timer.random(2000, 4000).exec(function() {
-                                    //     node.socket.reconnect();
-                                    // });
 
                                 }, 1000)
                             }, 1000)
@@ -228,6 +222,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
                                 + '\n'
                                 + 'ACTIVE NAME TO BE EVALUATED: '
                                 + this.node.game.clientNameList[this.node.game.activeIndex])
+
+                                // console.log(player);
 
                                 setTimeout(()=>{
                                     node.socket.reconnect();
@@ -270,30 +266,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
     stager.extendStep('identifyRace', {
 
-        // reconnect: function(player, reconOpts) {
-        //
-        //     console.log();
-        //     console.log();
-        //     console.log('*****************************');
-        //     console.log('*****************************');
-        //     console.log('* RECONNECTION IS ATTEMPTED *');
-        //     console.log('*****************************');
-        //     console.log('*****************************');
-        //     console.log();
-        //     console.log();
-        //
-        //     reconOpts.activeIndex = player.indexOfNextNameToEvaluate;
-        //
-        //     console.log('DO WE STILL PLAYER INFO IN THE LOGIC?');
-        //     console.log(player.indexOfNextNameToEvaluate);
-        //
-        //     // reconOpts.cb: function(reconOpts) {
-        //     //     console.log('INSIDE RECONNECT CALL BACK FUNCTION');
-        //     //     node.game.counter = reconOpts.counter;
-        //     // };
-        // },
-
-
         donebutton: false,
 
         frame: 'identifyRace.htm',
@@ -318,46 +290,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             })
 
-
-            // ---- SIMULATING DISCONNECT ---- //
-            // setTimeout(()=>{
-            //
-            //     this.talk('Fake disconnection will be initiated in 5 seconds')
-            //
-            //
-            //     setTimeout(()=>{
-            //         this.talk('4...')
-            //         setTimeout(()=>{
-            //             this.talk('3...')
-            //             setTimeout(()=>{
-            //                 this.talk('2...')
-            //                 setTimeout(()=>{
-            //                     this.talk('1...')
-            //                     setTimeout(()=>{
-            //
-            //                         this.talk('ACTIVE LIST INDEX: ' + this.node.game.activeIndex
-            //                         + '\n'
-            //                         + 'ACTIVE NAME TO BE EVALUATED: '
-            //                         + this.node.game.clientNameList[this.node.game.activeIndex])
-            //
-            //                         setTimeout(()=>{
-            //                             node.socket.reconnect();
-            //                         }, 3000)
-            //                         node.socket.disconnect();
-            //                         node.game.stop();
-            //                         // node.timer.random(2000, 4000).exec(function() {
-            //                         //     node.socket.reconnect();
-            //                         // });
-            //
-            //                     }, 1000)
-            //                 }, 1000)
-            //             }, 1000)
-            //         }, 1000)
-            //     }, 1000)
-            //
-            //
-            //
-            // }, 5000)
 
         }
 
@@ -398,4 +330,6 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
         }
 
     });
+
+
 };

@@ -83,6 +83,8 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             player.score = undefined;
 
+            player.test = 'test test test';
+
         }
 
         // Initialize all players' player specific variables
@@ -291,6 +293,14 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         }
 
+        const GameDB = require('nodegame-client').GameDB;
+
+        let newdb =  new GameDB({
+            log: node.log,
+            logCtx: node,
+            shared: { node: node }
+        });
+
 
         node.on.data('storeData', function(msg) {
 
@@ -304,20 +314,105 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
         })
 
+
+
         node.game.storeData = function(player) {
 
             let myID = player.id;
             let decisionList = player.orderedDecisionList;
             let score = player.score;
 
-            memory.add({
+
+            console.log('STORING DATA TO CSV');
+            console.log('ID: ' + myID);
+            console.log('DECISION LIST: ');
+            console.log(decisionList);
+
+            newdb.add({
+
                 player: myID,
-                stage: {stage: 1, step:1, round:1},
-                answers: decisionList,
-                score: score
+                stage: {stage: 1, step:1, round:10},
+                Q1: decisionList[0],
+                Q2: decisionList[1],
+                Q3: decisionList[2],
+                Q4: decisionList[3],
+                Q5: decisionList[4],
+                Q6: decisionList[5],
+                Q7: decisionList[6],
+                Q8: decisionList[7],
+                Q9: decisionList[8],
+                Q10: decisionList[9],
+                score: score,
+
             })
 
-            node.game.memory.save('data.json');
+
+            console.log('current newdb');
+            console.log(newdb);
+
+            newdb.save('newdbtest.csv',
+            {
+                header: [
+                    'player',
+                    'Q1',
+                    'Q2',
+                    'Q3',
+                    'Q4',
+                    'Q5',
+                    'Q6',
+                    'Q7',
+                    'Q8',
+                    'Q9',
+                    'Q10',
+                    'score',
+                ],
+                updatesOnly: true,
+            });
+
+            newdb.save('newdb.json')
+
+            memory.add({
+
+                player: myID,
+                stage: {stage: 1, step:1, round:10},
+                Q1: decisionList[0],
+                Q2: decisionList[1],
+                Q3: decisionList[2],
+                Q4: decisionList[3],
+                Q5: decisionList[4],
+                Q6: decisionList[5],
+                Q7: decisionList[6],
+                Q8: decisionList[7],
+                Q9: decisionList[8],
+                Q10: decisionList[9],
+                score: score,
+
+            })
+
+
+            console.log('current memory');
+            console.log(memory);
+
+            node.game.memory.save('test.csv',
+            {
+                header: [
+                    'player',
+                    'Q1',
+                    'Q2',
+                    'Q3',
+                    'Q4',
+                    'Q5',
+                    'Q6',
+                    'Q7',
+                    'Q8',
+                    'Q9',
+                    'Q10',
+                    'score',
+                ],
+                updatesOnly: true,
+            });
+
+            node.game.memory.save('test2.json')
 
         }
 
@@ -402,7 +497,7 @@ module.exports = function(treatmentName, settings, stager, setup, gameRoom) {
 
             console.log('DO WE STILL HAVE THE PLAYER INFO STORED IN THE LOGIC?');
             console.log(player.indexOfNextNameToEvaluate);
-
+            console.log(player);
             // reconOpts.cb: function(reconOpts) {
             //     console.log('INSIDE RECONNECT CALL BACK FUNCTION');
             //     node.game.counter = reconOpts.counter;
